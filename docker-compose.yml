@@ -1,0 +1,39 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_PASSWORD: clave1
+    volumes:
+      - $HOME/datos-postgresql:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: adrianbg09@gmail.com
+      PGADMIN_DEFAULT_USER: admin 
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "9091:80"
+
+  nginx:
+    image: nginx
+    container_name: nginx
+    ports:
+      - "9092:80"
+
+  php:
+    build: ./php
+    container_name: php
+    working_dir: /var/www/html
+    volumes:
+      - ./tu_aplicacion:/var/www/html
+    environment:
+      BBDD_CADENA_CONEXION: "pgsql:host=postgres;port=5432;dbname=PEPS"
+      BBDD_USUARIO: admin
+      BBDD_CLAVE: clave1
+    command: /bin/sh -c "apk add --no-cache postgresql-dev && docker-php-ext-install pdo pdo_pgsql && php-fpm"
